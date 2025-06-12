@@ -1,0 +1,2 @@
+# NC
+informe no conformidades
