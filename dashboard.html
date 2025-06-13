@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de NC por Patios</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="icon" href="https://i.postimg.cc/4dRSvzKv/image.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      padding-top: 20px;
+      background-color: #f8f9fa;
+    }
+    .card {
+      margin-bottom: 20px;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .chart-container {
+      position: relative;
+      height: 300px; /* Altura fija para los gráficos */
+      width: 100%;
+    }
+    .dashboard-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 20px;
+        border-radius: 0.5rem;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    .filter-section {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 0.5rem;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+        display: flex; /* Para alinear los elementos en la misma fila */
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+        align-items: flex-end; /* Alinea los elementos a la parte inferior */
+        gap: 15px; /* Espacio entre los elementos */
+    }
+    /* Estilo para los botones dentro de filter-section si es necesario */
+    .filter-buttons {
+        margin-left: auto; /* Empuja los botones a la derecha */
+        display: flex;
+        gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="dashboard-header">
+      <h1><i class="bi bi-bar-chart-fill me-2"></i>Dashboard de NC por Patios</h1>
+      <p class="lead">Análisis y estadísticas de no conformidades</p>
+    </div>
+
+    <div class="row mb-4 filter-section">
+        <div class="col-md-6 col-lg-4">
+            <label for="filtroEncargadoDashboard" class="form-label">Filtrar por Encargado:</label>
+            <select id="filtroEncargadoDashboard" class="form-select">
+              <option value="todos">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <label for="filtroMapaDashboard" class="form-label">Filtrar por Mapa:</label>
+            <select id="filtroMapaDashboard" class="form-select">
+              <option value="todos">Todos</option>
+              <option value="cordillera">Cordillera</option>
+              <option value="deco y tambores">Deco y Tambores</option>
+              <option value="sur">Sur</option>
+              <option value="ofi y bodega 4">Oficina y Bodega 4</option>
+              <option value="pallets y central">Pallets y Central</option>
+              <option value="punto verde y materiales">Punto Verde</option>
+              <option value="nuevo sur">Nuevo Sur</option>
+            </select>
+        </div>
+        <div class="col-12 col-lg-4 d-flex justify-content-end align-items-end">
+            <a href="index.html" class="btn btn-primary me-2">
+                <i class="bi bi-arrow-left-circle me-1"></i> Volver al Mapa
+            </a>
+            <button id="downloadDashboardCsv" class="btn btn-success">
+                <i class="bi bi-download me-1"></i> Descargar CSV
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3 col-md-6">
+        <div class="card text-center bg-primary text-white">
+          <div class="card-body">
+            <h5 class="card-title">Total de Pines</h5>
+            <p class="card-text fs-2" id="totalPines">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card text-center bg-success text-white">
+          <div class="card-body">
+            <h5 class="card-title">Pines Cumplidos</h5>
+            <p class="card-text fs-2" id="pinesCumplidos">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card text-center bg-danger text-white">
+          <div class="card-body">
+            <h5 class="card-title">Pines No Cumplidos</h5>
+            <p class="card-text fs-2" id="pinesNoCumplidos">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card text-center bg-info text-dark">
+          <div class="card-body">
+            <h5 class="card-title">Cumplimiento General</h5>
+            <p class="card-text fs-2" id="porcentajeCumplimiento">0%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-3">
+      <div class="col-lg-4 col-md-6">
+        <div class="card text-center bg-warning text-dark">
+          <div class="card-body">
+            <h5 class="card-title">Pines Nuevos</h5>
+            <p class="card-text fs-2" id="pinesNuevos">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card text-center bg-info text-dark">
+          <div class="card-body">
+            <h5 class="card-title">Pines Gestión en Proceso</h5>
+            <p class="card-text fs-2" id="pinesGestionProceso">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="card text-center bg-secondary text-white">
+          <div class="card-body">
+            <h5 class="card-title">Pines Solicitud de Cierre</h5>
+            <p class="card-text fs-2" id="pinesSolicitudCierre">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row mt-4">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            Pines por Mapa
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="pinesPorMapaChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            Pines por Encargado
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="pinesPorEncargadoChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mt-4"> <div class="card">
+          <div class="card-header">
+            Pines por Tipo de NC
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="pinesPorTipoChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mt-4"> <div class="card">
+          <div class="card-header">
+            Pines por Estatus
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="pinesPorEstatusChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4"> <div class="card-header">
+        Detalle de Pines
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Tipo de NC</th>
+                <th>Estatus</th>
+                <th>Fecha Creación</th>
+                <th>Encargado</th>
+                <th>Mapa</th>
+                <th>URL Imagen</th>
+                <th>Cumplido</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPinesBody">
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+    import { getFirestore, collection, query, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+
+    // ** CONFIGURACIÓN DE FIREBASE (Asegúrate de que estos valores sean los correctos de tu proyecto Firebase) **
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9LTFIpJL25PmlEAgkm37278DzgQJvMGI",
+      authDomain: "pinesnc-a31d6.firebaseapp.com",
+      projectId: "pinesnc-a31d6",
+      storageBucket: "pinesnc-a31d6.appspot.com",
+      messagingSenderId: "198447961429",
+      appId: "1:198447961429:web:eaae1f6765c0dbeff28bdc"
+    };
+    // ** FIN DE CONFIGURACIÓN DE FIREBASE **
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const pinesRef = collection(db, "pines");
+
+    let allPinesData = []; // Para almacenar todos los pines y aplicar filtros localmente
+
+    let pinesPorMapaChart, pinesPorEncargadoChart, pinesPorTipoChart, pinesPorEstatusChart;
+
+    // Referencias a elementos del DOM (declaradas aquí para que sean accesibles globalmente dentro del módulo)
+    let pinesPorMapaChartCtx, pinesPorEncargadoChartCtx, pinesPorTipoChartCtx, pinesPorEstatusChartCtx;
+    let filtroEncargadoDashboard, filtroMapaDashboard, tablaPinesBody, downloadDashboardCsvBtn;
+    let totalPinesEl, pinesCumplidosEl, pinesNoCumplidosEl, porcentajeCumplimientoEl;
+    let pinesNuevosEl, pinesGestionProcesoEl, pinesSolicitudCierreEl;
+
+
+    // Asegurarse de que el DOM esté completamente cargado antes de acceder a los elementos
+    document.addEventListener('DOMContentLoaded', () => {
+        // Asignar los contextos de los gráficos
+        pinesPorMapaChartCtx = document.getElementById('pinesPorMapaChart').getContext('2d');
+        pinesPorEncargadoChartCtx = document.getElementById('pinesPorEncargadoChart').getContext('2d');
+        pinesPorTipoChartCtx = document.getElementById('pinesPorTipoChart').getContext('2d');
+        pinesPorEstatusChartCtx = document.getElementById('pinesPorEstatusChart').getContext('2d');
+
+        // Asignar las referencias a los elementos HTML
+        filtroEncargadoDashboard = document.getElementById('filtroEncargadoDashboard');
+        filtroMapaDashboard = document.getElementById('filtroMapaDashboard');
+        tablaPinesBody = document.getElementById('tablaPinesBody');
+        downloadDashboardCsvBtn = document.getElementById('downloadDashboardCsv');
+
+        totalPinesEl = document.getElementById('totalPines');
+        pinesCumplidosEl = document.getElementById('pinesCumplidos');
+        pinesNoCumplidosEl = document.getElementById('pinesNoCumplidos');
+        porcentajeCumplimientoEl = document.getElementById('porcentajeCumplimiento');
+
+        // Nuevas referencias para las tarjetas de estatus
+        pinesNuevosEl = document.getElementById('pinesNuevos');
+        pinesGestionProcesoEl = document.getElementById('pinesGestionProceso');
+        pinesSolicitudCierreEl = document.getElementById('pinesSolicitudCierre');
+
+        // Inicializar los gráficos
+        initCharts();
+
+        // Suscribirse a los cambios en la colección de pines
+        onSnapshot(pinesRef, (snapshot) => {
+            allPinesData = snapshot.docs.map(doc => doc.data());
+            updateDashboard(allPinesData);
+        }, (error) => {
+            console.error("Error al obtener pines:", error);
+            alert("Error al cargar los datos del dashboard. Por favor, inténtelo de nuevo.");
+        });
+
+        // Event listeners para los filtros
+        filtroEncargadoDashboard.addEventListener('change', () => updateDashboard(allPinesData));
+        filtroMapaDashboard.addEventListener('change', () => updateDashboard(allPinesData));
+
+        // Event listener para el botón de Descargar CSV
+        downloadDashboardCsvBtn.addEventListener('click', () => {
+            const filteredPines = applyAllFilters(allPinesData); // Descargar solo los pines filtrados
+
+            if (filteredPines.length === 0) {
+                alert('No hay datos para exportar con los filtros actuales.');
+                return;
+            }
+
+            const headers = [
+                "Titulo", "Descripcion", "Tipo de NC", "Estatus",
+                "Fecha Creacion", "Encargado", "Mapa", "URL Imagen", "Cumplido"
+            ];
+
+            const csvRows = [];
+            csvRows.push(headers.join(';')); // Unir encabezados con punto y coma
+
+            filteredPines.forEach(pin => {
+                const row = [
+                    pin.titulo || '',
+                    (pin.descripcion || '').replace(/;/g, ','), // Reemplazar ; en descripción para evitar problemas en CSV
+                    pin.tipoNC || '',
+                    pin.estatus || '',
+                    pin.fechaCreacion || '',
+                    pin.encargado || '',
+                    pin.imagenId || '',
+                    pin.imagenURL || '',
+                    calculateCompliance(pin.fechaCreacion) ? 'Sí' : 'No'
+                ];
+                csvRows.push(row.join(';')); // Unir filas con punto y coma
+            });
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dashboard_pines_filtrados.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    });
+
+
+    function initCharts() {
+      pinesPorMapaChart = new Chart(pinesPorMapaChartCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Pines por Mapa',
+            data: [],
+            backgroundColor: 'rgba(13, 110, 253, 0.7)',
+            borderColor: 'rgba(13, 110, 253, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                  callback: function(value) { if (Number.isInteger(value)) { return value; } }
+              }
+            }
+          }
+        }
+      });
+
+      pinesPorEncargadoChart = new Chart(pinesPorEncargadoChartCtx, {
+        type: 'doughnut',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Pines por Encargado',
+            data: [],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)',
+              'rgba(255, 159, 64, 0.7)'
+            ],
+            borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        }
+      });
+
+      pinesPorTipoChart = new Chart(pinesPorTipoChartCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Pines por Tipo de NC',
+            data: [],
+            backgroundColor: 'rgba(40, 167, 69, 0.7)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                  callback: function(value) { if (Number.isInteger(value)) { return value; } }
+              }
+            }
+          }
+        }
+      });
+
+      pinesPorEstatusChart = new Chart(pinesPorEstatusChartCtx, {
+        type: 'pie',
+        data: {
+          labels: [], // Se llenará dinámicamente
+          datasets: [{
+            label: 'Pines por Estatus',
+            data: [], // Se llenará dinámicamente
+            backgroundColor: [
+                'rgba(255, 193, 7, 0.7)',  // Nueva (amarillo)
+                'rgba(23, 162, 184, 0.7)', // Gestión en proceso (azul claro)
+                'rgba(108, 117, 125, 0.7)', // Solicitud de Cierre (gris)
+                'rgba(40, 167, 69, 0.7)', // Cumplido (verde)
+                'rgba(220, 53, 69, 0.7)' // No Cumplido (rojo)
+            ],
+            borderColor: [
+                'rgba(255, 193, 7, 1)',
+                'rgba(23, 162, 184, 1)',
+                'rgba(108, 117, 125, 1)',
+                'rgba(40, 167, 69, 1)',
+                'rgba(220, 53, 69, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+        }
+      });
+    }
+
+    function calculateCompliance(fechaCreacion) {
+        if (!fechaCreacion) return false;
+        const today = new Date();
+        // Set hours, minutes, seconds, milliseconds to 0 for accurate date comparison
+        today.setHours(0, 0, 0, 0);
+
+        const parts = fechaCreacion.split('-');
+        // Month is 0-indexed in Date constructor
+        const pinDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        pinDate.setHours(0, 0, 0, 0);
+
+        // A pin is "complied" if its creation date is today or in the future
+        // This seems counter-intuitive for "compliance" in a task tracking system.
+        // Usually, compliance means meeting a deadline *by* a certain date, or completing before/on.
+        // Given the prompt: "si la fecha es menor a la fecha de hoy, no comple, pero si es igual o mayor si cumple"
+        // This translates to: if pinDate < today, then not complied. if pinDate >= today, then complied.
+        return pinDate >= today;
+    }
+
+    function updateDashboard(pines) {
+        const pinesFiltrados = applyAllFilters(pines);
+
+        // Resumen General
+        const total = pinesFiltrados.length;
+        let cumplidos = 0;
+        let noCumplidos = 0;
+
+        pinesFiltrados.forEach(pin => {
+            if (calculateCompliance(pin.fechaCreacion)) {
+                cumplidos++;
+            } else {
+                noCumplidos++;
+            }
+        });
+
+        totalPinesEl.textContent = total;
+        pinesCumplidosEl.textContent = cumplidos;
+        pinesNoCumplidosEl.textContent = noCumplidos;
+        const porcentaje = total > 0 ? ((cumplidos / total) * 100).toFixed(1) : 0;
+        porcentajeCumplimientoEl.textContent = `${porcentaje}%`;
+
+        // Nuevos conteos por estatus (para las nuevas tarjetas)
+        let nuevosCount = 0;
+        let gestionProcesoCount = 0;
+        let solicitudCierreCount = 0;
+
+        pinesFiltrados.forEach(pin => {
+            if (pin.estatus === 'Nueva') {
+                nuevosCount++;
+            } else if (pin.estatus === 'Gestion en proceso') {
+                gestionProcesoCount++;
+            } else if (pin.estatus === 'Solicitud de Cierre') {
+                solicitudCierreCount++;
+            }
+        });
+        pinesNuevosEl.textContent = nuevosCount;
+        pinesGestionProcesoEl.textContent = gestionProcesoCount;
+        pinesSolicitudCierreEl.textContent = solicitudCierreCount;
+
+
+        // Datos para Gráficos
+        const pinesPorMapa = {};
+        const pinesPorEncargado = {};
+        const pinesPorTipo = {};
+        const pinesPorEstatus = {};
+
+        pinesFiltrados.forEach(pin => {
+            pinesPorMapa[pin.imagenId] = (pinesPorMapa[pin.imagenId] || 0) + 1;
+            pinesPorEncargado[pin.encargado] = (pinesPorEncargado[pin.encargado] || 0) + 1;
+            pinesPorTipo[pin.tipoNC] = (pinesPorTipo[pin.tipoNC] || 0) + 1;
+            pinesPorEstatus[pin.estatus] = (pinesPorEstatus[pin.estatus] || 0) + 1;
+        });
+
+        // Actualizar Gráfico Pines por Mapa
+        pinesPorMapaChart.data.labels = Object.keys(pinesPorMapa);
+        pinesPorMapaChart.data.datasets[0].data = Object.values(pinesPorMapa);
+        pinesPorMapaChart.update();
+
+        // Actualizar Gráfico Pines por Encargado
+        pinesPorEncargadoChart.data.labels = Object.keys(pinesPorEncargado);
+        pinesPorEncargadoChart.data.datasets[0].data = Object.values(pinesPorEncargado);
+        pinesPorEncargadoChart.update();
+
+        // Actualizar Gráfico Pines por Tipo de NC
+        pinesPorTipoChart.data.labels = Object.keys(pinesPorTipo);
+        pinesPorTipoChart.data.datasets[0].data = Object.values(pinesPorTipo);
+        pinesPorTipoChart.update();
+
+        // Actualizar Gráfico Pines por Estatus
+        const estatusLabels = Object.keys(pinesPorEstatus);
+        const estatusData = Object.values(pinesPorEstatus);
+
+        pinesPorEstatusChart.data.labels = estatusLabels;
+        pinesPorEstatusChart.data.datasets[0].data = estatusData;
+        pinesPorEstatusChart.update();
+
+        // Llenar tabla de Pines
+        tablaPinesBody.innerHTML = '';
+        pinesFiltrados.forEach(pin => {
+            const row = tablaPinesBody.insertRow();
+            row.insertCell().textContent = pin.titulo || 'N/A';
+            row.insertCell().textContent = pin.descripcion || 'N/A';
+            row.insertCell().textContent = pin.tipoNC || 'N/A';
+            row.insertCell().textContent = pin.estatus || 'N/A';
+            row.insertCell().textContent = pin.fechaCreacion || 'N/A';
+            row.insertCell().textContent = pin.encargado || 'No asignado';
+            row.insertCell().textContent = pin.imagenId || 'N/A';
+            const imgCell = row.insertCell();
+            if (pin.imagenURL) {
+                const imgLink = document.createElement('a');
+                imgLink.href = pin.imagenURL;
+                imgLink.target = '_blank';
+                imgLink.textContent = 'Ver Imagen';
+                imgCell.appendChild(imgLink);
+            } else {
+                imgCell.textContent = 'N/A';
+            }
+            row.insertCell().textContent = calculateCompliance(pin.fechaCreacion) ? 'Sí' : 'No';
+        });
+
+        // Actualizar filtro de encargados
+        const encargadosSet = new Set(allPinesData.map(p => p.encargado).filter(Boolean));
+        const currentSelectedEncargado = filtroEncargadoDashboard.value;
+        filtroEncargadoDashboard.innerHTML = '<option value="todos">Todos</option>';
+        [...encargadosSet].sort().forEach(encargado => {
+            const option = document.createElement('option');
+            option.value = encargado;
+            option.textContent = encargado;
+            filtroEncargadoDashboard.appendChild(option);
+        });
+        filtroEncargadoDashboard.value = currentSelectedEncargado;
+    }
+
+    function applyAllFilters(pines) {
+        let filtered = pines;
+
+        const encargadoFiltro = filtroEncargadoDashboard.value;
+        if (encargadoFiltro && encargadoFiltro !== 'todos') { // Se agregó verificación de null/undefined
+            filtered = filtered.filter(pin => pin.encargado === encargadoFiltro);
+        }
+
+        const mapaFiltro = filtroMapaDashboard.value;
+        if (mapaFiltro && mapaFiltro !== 'todos') { // Se agregó verificación de null/undefined
+            filtered = filtered.filter(pin => pin.imagenId === mapaFiltro);
+        }
+        return filtered;
+    }
+  </script>
+</body>
+</html>
