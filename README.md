@@ -31,32 +31,32 @@ Super Administrador: Tiene todas las capacidades del administrador y, además, p
 ## Estructura del Proyecto
 El proyecto se compone de los siguientes archivos principales HTML, que interactúan con Firebase Firestore para la gestión de datos:
 
-### login.html: Página de inicio de sesión de la aplicación.
+* **login.html:** Página de inicio de sesión de la aplicación.
 
-### index.html: La página principal donde se visualizan los mapas y se gestionan las No Conformidades.
+* **index.html:** La página principal donde se visualizan los mapas y se gestionan las No Conformidades.
 
-### user_management.html: Interfaz para la creación y eliminación de usuarios (accesible solo para Super Administradores).
+* **user_management.html:** Interfaz para la creación y eliminación de usuarios (accesible solo para Super Administradores).
 
-### dashboard.html: Página que presenta gráficos y tablas con el análisis de las No Conformidades.
+* **dashboard.html:** Página que presenta gráficos y tablas con el análisis de las No Conformidades.
 
-### 404.html: Página de error mostrada cuando una ruta no es encontrada.
+* **404.html:** Página de error mostrada cuando una ruta no es encontrada.
 
 ## Tecnologías Utilizadas
 ### Frontend:
 
-#### HTML5
+* HTML5
 
-#### CSS3 (con Bootstrap 5 para el framework UI)
+* CSS3 (con Bootstrap 5 para el framework UI)
 
-#### JavaScript ES6+
+* JavaScript ES6+
 
-#### Bootstrap Icons
+* Bootstrap Icons
 
-#### Chart.js (para los gráficos del dashboard)
+* Chart.js (para los gráficos del dashboard)
 
-#### Backend (Base de Datos como Servicio):
+* Backend (Base de Datos como Servicio):
 
-#### Firebase Firestore (para almacenar los datos de usuarios y pines).
+* Firebase Firestore (para almacenar los datos de usuarios y pines).
 
 ## Configuración y Ejecución
 **Para ejecutar esta aplicación localmente y conectarla a tu propia base de datos, sigue los siguientes pasos:**
@@ -94,7 +94,7 @@ Sigue los pasos y, al final, se te proporcionará un objeto firebaseConfig con t
 
 * **2. Actualiza las Credenciales en el Código**
 Abre los archivos login.html, index.html, user_management.html y dashboard.html en tu editor de código. En cada uno de ellos, busca la sección donde se define const firebaseConfig y reemplaza los valores existentes con los que obtuviste de tu proyecto Firebase:
-
+```bash
 const firebaseConfig = {
   apiKey: &quot;TU_API_KEY&quot;,
   authDomain: &quot;TU_AUTH_DOMAIN&quot;,
@@ -103,7 +103,7 @@ const firebaseConfig = {
   messagingSenderId: &quot;TU_MESSAGING_SENDER_ID&quot;,
   appId: &quot;TU_APP_ID&quot;
 };
-
+```
 * **3. Despliegue Local**
 Aunque puedes abrir los archivos HTML directamente en tu navegador para una prueba rápida, para un funcionamiento óptimo y para evitar posibles problemas de seguridad o CORS relacionados con Firebase, es altamente recomendable usar un servidor web local.
 
@@ -111,40 +111,45 @@ Puedes usar la extensión "Live Server" en Visual Studio Code o el paquete http-
 
 Instalar http-server (si no lo tienes):
 
+```bash
 npm install -g http-server
-
+```
 Navega a la Carpeta del Proyecto: Abre tu terminal o línea de comandos y navega hasta el directorio donde se encuentran tus archivos HTML:
 
+```bash
 cd /ruta/a/tu/proyecto/NC_por_Patios
+```
 
 Inicia el Servidor:
 
+```bash
 http-server
+```
 
 Esto iniciará un servidor en http://localhost:8080 (o un puerto similar). Abre esta URL en tu navegador.
 
 * **4. Creación de Usuarios Iniciales**
 Dado que la gestión de usuarios está controlada por roles, para poder usar la funcionalidad de gestión de usuarios (user_management.html), necesitarás crear al menos un usuario con el rol superadmin directamente en tu consola de Firebase Firestore.
 
-Pasos:
+## Pasos:
 
-En tu consola de Firebase, ve a "Firestore Database".
+* En tu consola de Firebase, ve a "Firestore Database".
 
-Selecciona la colección users.
+* Selecciona la colección users.
 
-Haz clic en "Agregar documento".
+* Haz clic en "Agregar documento".
 
-Crea un nuevo documento con los siguientes campos (asegúrate de que los nombres de los campos coincidan exactamente):
+* Crea un nuevo documento con los siguientes campos (asegúrate de que los nombres de los campos coincidan exactamente):
 
 username (string): superadmin (o el nombre de usuario que prefieras)
 
-password (string): password123 (o una contraseña simple. ¡ADVERTENCIA: ESTO ES ALTAMENTE INSEGURO PARA PRODUCCIÓN! Ver sección de seguridad.)
+password (string): password123 (o una contraseña simple. **¡ADVERTENCIA: ESTO ES ALTAMENTE INSEGURO PARA PRODUCCIÓN! Ver sección de seguridad.)**
 
 role (string): superadmin
 
-Una vez que hayas iniciado sesión con este usuario superadmin, podrás usar la interfaz de user_management.html para crear otros usuarios con roles de admin o visualizador.
+* Una vez que hayas iniciado sesión con este usuario superadmin, podrás usar la interfaz de user_management.html para crear otros usuarios con roles de admin o visualizador.
 
-**##Consideraciones de Seguridad (¡Muy Importante!)**
+## Consideraciones de Seguridad (¡Muy Importante!)
 La aplicación, en su estado actual, almacena y compara contraseñas en texto plano directamente en Firebase Firestore. Esto es EXTREMADAMENTE INSEGURO y NO DEBE USARSE en un entorno de producción real. Una brecha de seguridad expondría todas las contraseñas de los usuarios.
 
 Para una aplicación segura y lista para producción, se DEBEN implementar las siguientes mejoras de seguridad:
@@ -155,32 +160,33 @@ Autenticación de Firebase: Utiliza los métodos de autenticación nativos de Fi
 
 Reglas de Seguridad de Firestore: Define reglas estrictas en Firebase Firestore para controlar el acceso a los datos. Asegúrate de que los usuarios solo puedan leer o escribir los datos que les corresponden según su rol, y que nadie pueda leer la colección users directamente. Por ejemplo, solo un superadmin debería poder escribir en users.
 
-##Uso
-###Iniciar Sesión: Accede a la página login.html e ingresa tus credenciales de usuario.
+## Uso
 
-**###Mapa Principal (index.html):**
+* Iniciar Sesión: Accede a la página login.html e ingresa tus credenciales de usuario.
 
-###Selecciona el mapa que deseas visualizar del menú desplegable.
+**Mapa Principal (index.html):**
 
-###Si tienes el rol de Administrador, haz clic en cualquier parte del mapa para añadir un nuevo pin de no conformidad, o haz clic en un pin existente para editarlo o eliminarlo.
+* Selecciona el mapa que deseas visualizar del menú desplegable.
 
-###Utiliza el filtro por "Encargado" para ver solo los pines asignados a una persona específica.
+* Si tienes el rol de Administrador, haz clic en cualquier parte del mapa para añadir un nuevo pin de no conformidad, o haz clic en un pin existente para editarlo o eliminarlo.
 
-###Gestión de Usuarios (user_management.html):
+* Utiliza el filtro por "Encargado" para ver solo los pines asignados a una persona específica.
 
-**###Esta página es solo accesible para usuarios con el rol superadmin.**
+* Gestión de Usuarios (user_management.html):
 
-### Aquí puedes añadir nuevos usuarios, especificar su nombre de usuario, contraseña y rol (visualizador, administrador, superadmin), y eliminar usuarios existentes (con la precaución de no eliminarte a ti mismo o a otros superadministradores accidentalmente).
+**Esta página es solo accesible para usuarios con el rol superadmin.**
 
-### Dashboard de Análisis (dashboard.html):
+* Aquí puedes añadir nuevos usuarios, especificar su nombre de usuario, contraseña y rol (visualizador, administrador, superadmin), y eliminar usuarios existentes (con la precaución de no eliminarte a ti mismo o a otros superadministradores accidentalmente).
 
-### Accede a esta página para ver un resumen visual de las no conformidades.
+* Dashboard de Análisis (dashboard.html):
 
-### Los gráficos muestran la distribución de NC por mapa, encargado, tipo y estatus.
+* **Accede a esta página para ver un resumen visual de las no conformidades.**
 
-### Puedes aplicar filtros para ajustar los datos visualizados.
+* **Los gráficos muestran la distribución de NC por mapa, encargado, tipo y estatus.**
 
-### La tabla inferior lista todas las no conformidades, y puedes descargar los datos filtrados en formato CSV.
+* **Puedes aplicar filtros para ajustar los datos visualizados.**
+
+* **La tabla inferior lista todas las no conformidades, y puedes descargar los datos filtrados en formato CSV.**
 
 **Autor:** [Luis David Espinoza @perreohipertenso]
 
